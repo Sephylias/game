@@ -5,6 +5,7 @@ module Itsis {
         floorGroup: Phaser.Group;
         cubeGroup: Phaser.Group;
         decorGroup: Phaser.Group;
+        characterGroup: Phaser.Group;
         cursorPos: Phaser.Plugin.Isometric.Point3;
         actualDate : number;
         text : Phaser.Text;
@@ -23,22 +24,16 @@ module Itsis {
           this.game.iso.anchor.setTo(0.5, 0.2);
           this.game.physics.startSystem(Phaser.Plugin.Isometric.ISOARCADE);
 
-          // Load assets & level data
+          // Load assets & level jsons
           this.levelJSON = this.game.cache.getJSON('level');
           this.charJSON = this.game.cache.getJSON('characters');
           this.sceneryJSON =  this.game.cache.getJSON('scenery');
           // Load level images
             // Load floor
           this.game.load.image('floor', 'assets/scenery/' + this.levelJSON.openSpace.floor);
-          this.game.load.image('entree', 'assets/scenery/tile_entree.png');
-            // Load assets
+
+            // Load items
               // Retrieve image and image type
-
-          for (let ch of  this.charJSON.characters){
-              this.load.spritesheet(ch.name, ch.sprite,ch.sizex,ch.sizey,ch.nbanim);
-          }
-          CharacterOS.charJSON = this.charJSON;
-
           for (let obj of this.levelJSON.openSpace.objInOpenSpace){
               let idObj = obj.id;
               for (let scen in this.sceneryJSON){
@@ -56,17 +51,29 @@ module Itsis {
                   }
               }
           }
+            // Load characters
+          for (let ch of  this.charJSON.characters){
+              this.load.spritesheet(ch.name, ch.sprite,ch.sizex,ch.sizey,ch.nbanim);
+          }
+          CharacterOS.charJSON = this.charJSON;
+
 
         }
 
         create() {
+            // <debug>
             var style = { font: "32px Arial", fill: "#ff0044", wordWrap: false,  align: "center" };
             this.text = this.game.add.text(0,0,"hello",style);
+            // </debug>
+
+            // Global level settings
             this.lastTicksHour = this.game.time.time;
             this.actualDate=7.00;
+
             // Create groups for assets
             this.floorGroup = this.game.add.group();
             this.decorGroup = this.game.add.group();
+            this.characterGroup = this.game.add.group();
 
             // Floor building
             this.spawnTilesFloor(this.levelJSON.openSpace.sizex, this.levelJSON.openSpace.sizey);
@@ -94,25 +101,23 @@ module Itsis {
                 }
             }
 
-            // Drawing
+              // Drawin
             for (let objToOpenspace of ObjInOpenSpace.listOfObj){
+              if (objToOpenspace.typeItem == "entree"){
+                objToOpenspace.sprite = this.game.add.isoSprite(objToOpenspace.locationX, objToOpenspace.locationY, 0, objToOpenspace.id, objToOpenspace.frame, this.floorGroup);
+                objToOpenspace.sprite.anchor.set(0.5, 0.2);
+              }else{
                 objToOpenspace.sprite = this.game.add.isoSprite(objToOpenspace.locationX, objToOpenspace.locationY, 0, objToOpenspace.id, objToOpenspace.frame, this.decorGroup);
                 objToOpenspace.sprite.anchor.set(0.5);
+              }
             }
 
-
-            let tempObjEntree = new ObjInOpenSpace();
-            tempObjEntree.sprite = this.game.add.isoSprite(494, 0, 0, "entree", 0, this.floorGroup);
-            tempObjEntree.sprite.anchor.set(0.5,0.2);
-            tempObjEntree.typeItem = "entree";
-
-            let tempChar = new CharacterOS("malepirate",this.game,this.decorGroup);
+            let tempChar = new CharacterOS("malepirate",this.game,this.characterGroup);
 
             this.mapOpenSpace =[this.levelJSON.openSpace.sizex];
             for (let x=0; x < this.levelJSON.openSpace.sizex;x++){
               this.mapOpenSpace[x] = [this.levelJSON.openSpace.sizey];
-              }
-
+            }
 
             for (let x=0; x < this.levelJSON.openSpace.sizex;x++){
               for (let y = 0; y< this.levelJSON.openSpace.sizey;y++){
@@ -148,11 +153,6 @@ module Itsis {
 
 
           // console.log(this.mapOpenSpace);
-        }
-
-        spawnCube(){
-          var cube = this.game.add.isoSprite(38, 38, 0, 'cube', 0, this.cubeGroup);
-          cube.anchor.set(0.5);
         }
 
         spawnTilesFloor(sizeX: number, sizeY: number) {

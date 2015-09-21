@@ -21,6 +21,7 @@
         "./src/OpenSpace.ts",
         "./src/Preloader.ts",
         "./src/app.ts",
+        "./tsDefinitions/EZGUI.d.ts",
         "./tsDefinitions/p2.d.ts",
         "./tsDefinitions/phaser.d.ts",
         "./tsDefinitions/phaser.plugin.isometric.d.ts",

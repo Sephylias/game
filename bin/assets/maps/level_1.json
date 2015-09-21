@@ -7,6 +7,11 @@
 			"sizey" : 10,
 			"objInOpenSpace":[
 				{
+					"id":"entree",
+					"posx" : 13,
+					"posy" : 0
+				},
+				{
 					"id":"desk_face_left",
 					"posx" : 1,
 					"posy" : 1

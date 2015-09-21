@@ -401,14 +401,8 @@ var Itsis;
             this.charJSON = this.game.cache.getJSON('characters');
             this.sceneryJSON = this.game.cache.getJSON('scenery');
             this.game.load.image('floor', 'assets/scenery/' + this.levelJSON.openSpace.floor);
-            this.game.load.image('entree', 'assets/scenery/tile_entree.png');
-            for (var _i = 0, _a = this.charJSON.characters; _i < _a.length; _i++) {
-                var ch = _a[_i];
-                this.load.spritesheet(ch.name, ch.sprite, ch.sizex, ch.sizey, ch.nbanim);
-            }
-            Itsis.CharacterOS.charJSON = this.charJSON;
-            for (var _b = 0, _c = this.levelJSON.openSpace.objInOpenSpace; _b < _c.length; _b++) {
-                var obj = _c[_b];
+            for (var _i = 0, _a = this.levelJSON.openSpace.objInOpenSpace; _i < _a.length; _i++) {
+                var obj = _a[_i];
                 var idObj = obj.id;
                 for (var scen in this.sceneryJSON) {
                     if (scen.toString() == idObj) {
@@ -423,6 +417,11 @@ var Itsis;
                     }
                 }
             }
+            for (var _b = 0, _c = this.charJSON.characters; _b < _c.length; _b++) {
+                var ch = _c[_b];
+                this.load.spritesheet(ch.name, ch.sprite, ch.sizex, ch.sizey, ch.nbanim);
+            }
+            Itsis.CharacterOS.charJSON = this.charJSON;
         };
         Jeu.prototype.create = function () {
             var style = { font: "32px Arial", fill: "#ff0044", wordWrap: false, align: "center" };
@@ -431,6 +430,7 @@ var Itsis;
             this.actualDate = 7.00;
             this.floorGroup = this.game.add.group();
             this.decorGroup = this.game.add.group();
+            this.characterGroup = this.game.add.group();
             this.spawnTilesFloor(this.levelJSON.openSpace.sizex, this.levelJSON.openSpace.sizey);
             for (var _i = 0, _a = this.levelJSON.openSpace.objInOpenSpace; _i < _a.length; _i++) {
                 var obj = _a[_i];
@@ -456,14 +456,16 @@ var Itsis;
             }
             for (var _b = 0, _c = Itsis.ObjInOpenSpace.listOfObj; _b < _c.length; _b++) {
                 var objToOpenspace = _c[_b];
-                objToOpenspace.sprite = this.game.add.isoSprite(objToOpenspace.locationX, objToOpenspace.locationY, 0, objToOpenspace.id, objToOpenspace.frame, this.decorGroup);
-                objToOpenspace.sprite.anchor.set(0.5);
+                if (objToOpenspace.typeItem == "entree") {
+                    objToOpenspace.sprite = this.game.add.isoSprite(objToOpenspace.locationX, objToOpenspace.locationY, 0, objToOpenspace.id, objToOpenspace.frame, this.floorGroup);
+                    objToOpenspace.sprite.anchor.set(0.5, 0.2);
+                }
+                else {
+                    objToOpenspace.sprite = this.game.add.isoSprite(objToOpenspace.locationX, objToOpenspace.locationY, 0, objToOpenspace.id, objToOpenspace.frame, this.decorGroup);
+                    objToOpenspace.sprite.anchor.set(0.5);
+                }
             }
-            var tempObjEntree = new Itsis.ObjInOpenSpace();
-            tempObjEntree.sprite = this.game.add.isoSprite(494, 0, 0, "entree", 0, this.floorGroup);
-            tempObjEntree.sprite.anchor.set(0.5, 0.2);
-            tempObjEntree.typeItem = "entree";
-            var tempChar = new Itsis.CharacterOS("malepirate", this.game, this.decorGroup);
+            var tempChar = new Itsis.CharacterOS("malepirate", this.game, this.characterGroup);
             this.mapOpenSpace = [this.levelJSON.openSpace.sizex];
             for (var x = 0; x < this.levelJSON.openSpace.sizex; x++) {
                 this.mapOpenSpace[x] = [this.levelJSON.openSpace.sizey];
@@ -497,10 +499,6 @@ var Itsis;
                     this.mapOpenSpace[isoX][isoY] = 0;
                 }
             }
-        };
-        Jeu.prototype.spawnCube = function () {
-            var cube = this.game.add.isoSprite(38, 38, 0, 'cube', 0, this.cubeGroup);
-            cube.anchor.set(0.5);
         };
         Jeu.prototype.spawnTilesFloor = function (sizeX, sizeY) {
             sizeX *= 38;
